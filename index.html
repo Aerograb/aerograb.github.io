@@ -1,10 +1,749 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AeroGrab</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================= -->
+  <!-- PAGE META  — edit the title / description / URLs for your page -->
+  <!-- ============================================================= -->
+  <title>AeroGrab — Aerial Grasping in Cluttered Environments</title>
+  <meta name="description"
+        content="AeroGrab: a unified, language-guided framework for reliable 6-DoF aerial grasping in cluttered environments, combining active perception with collision-aware feasibility selection." />
+
+  <!-- Open Graph / social preview (replace the image + url) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AeroGrab — Aerial Grasping in Cluttered Environments" />
+  <meta property="og:description"
+        content="A language-guided aerial manipulator that actively explores clutter, predicts 6-DoF grasps, and selects a collision-safe grasp in real time." />
+  <!-- TODO: set absolute URL after deploy, e.g. https://USERNAME.github.io/aerograb/assets/teaser.png -->
+  <meta property="og:image" content="assets/teaser.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Fonts: Space Grotesk (display) · Inter (body) · JetBrains Mono (data/labels) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  <!-- Optional favicon: drop assets/favicon.png and uncomment -->
+  <!-- <link rel="icon" type="image/png" href="assets/favicon.png" /> -->
 </head>
+
 <body>
-  <h1>AeroGrab</h1>
-  <p>Project page for our IROS paper.</p>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="#top" class="nav__brand">
+        <span class="nav__brand-mark">AeroGrab</span>
+        <span class="nav__brand-sub">Aerial Grasping in Clutter</span>
+      </a>
+
+      <nav class="nav__links" id="navLinks" aria-label="Section navigation">
+        <a href="#abstract">Abstract</a>
+        <a href="#motivation">Motivation</a>
+        <a href="#idea">Idea</a>
+        <a href="#method">Method</a>
+        <a href="#experiments">Experiments</a>
+        <a href="#results">Results</a>
+        <a href="#video">Video</a>
+        <a href="#bibtex">Cite</a>
+      </nav>
+
+      <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <main id="top">
+    <section class="hero">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="hero__venue mono">
+          <!-- TODO: confirm the exact venue / year for your camera-ready -->
+          IEEE/RSJ IROS · International Conference on Intelligent Robots and Systems
+        </p>
+
+        <h1 class="hero__title">
+          A Unified Framework for Aerial Grasping<br class="hide-mobile" />
+          in Cluttered Environments
+        </h1>
+        <div class="hero__rule" aria-hidden="true"></div>
+
+        <!-- ---------- Authors ---------- -->
+        <ul class="authors" aria-label="Authors">
+          <li><span>Shivansh Pratap Singh</span><sup>1,&#42;</sup></li>
+          <li><span>Naveen Nair</span><sup>1,&#42;</sup></li>
+          <li><span>Samaksh Ujjwal</span><sup>1</sup></li>
+          <li><span>Sarthak Mishra</span><sup>1</sup></li>
+          <li><span>Soham Patil</span><sup>1</sup></li>
+          <li><span>Rishabh Dev Yadav</span><sup>2</sup></li>
+          <li><span>Spandan Roy</span><sup>1</sup></li>
+        </ul>
+
+        <ul class="affil" aria-label="Affiliations">
+          <li><sup>1</sup> Robotics Research Center, IIIT Hyderabad, India</li>
+          <li><sup>2</sup> Department of Computer Science, University of Manchester, UK</li>
+          <li class="affil__eq"><sup>&#42;</sup> Equal contribution</li>
+        </ul>
+
+        <!-- ---------- Action buttons (set real links once available) ---------- -->
+        <div class="btns">
+          <!-- Place your PDF at assets/paper.pdf -->
+          <a class="btn btn--solid" href="assets/paper.pdf" target="_blank" rel="noopener">
+            <span class="btn__ico">&#9656;</span> Paper (PDF)
+          </a>
+          <!-- TODO: arXiv link -->
+          <a class="btn" href="#" target="_blank" rel="noopener">arXiv</a>
+          <!-- TODO: code repository link -->
+          <a class="btn" href="#" target="_blank" rel="noopener">Code</a>
+          <!-- Jumps to the video section below -->
+          <a class="btn" href="#video">Video</a>
+          <!-- TODO: poster + slides (assets/poster.pdf, assets/slides.pdf) -->
+          <a class="btn" href="assets/poster.pdf" target="_blank" rel="noopener">Poster</a>
+          <a class="btn" href="assets/slides.pdf" target="_blank" rel="noopener">Slides</a>
+        </div>
+      </div>
+
+      <!-- ---------- Teaser ---------- -->
+      <div class="wrap wrap--wide">
+        <figure class="teaser reveal">
+          <!--
+            TEASER MEDIA
+            Option A (video): place assets/teaser.mp4 (+ optional poster assets/teaser.png).
+            Option B (image): delete the <video> block and uncomment the <img>.
+          -->
+          <video class="teaser__media" autoplay muted loop playsinline poster="assets/teaser.png">
+            <source src="assets/teaser.mp4" type="video/mp4" />
+          </video>
+          <!-- <img class="teaser__media" src="assets/teaser.png" alt="AeroGrab system grasping a target object in a cluttered scene" /> -->
+
+          <figcaption class="teaser__cap">
+            Given a text query such as <em>“Grasp the grey case on the white table,”</em> the aerial
+            manipulator searches the scene, explores for better views, finds a feasible 6-DoF grasp,
+            and executes it while avoiding collisions with surrounding clutter.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================== TL;DR ===================== -->
+    <section class="band">
+      <div class="wrap">
+        <p class="tldr reveal">
+          <span class="tldr__tag mono">TL;DR</span>
+          A language-guided aerial manipulator that <strong>actively explores</strong> a cluttered scene,
+          predicts <strong>6-DoF grasp candidates</strong>, and selects a <strong>collision-safe</strong>
+          grasp to execute — running in real time on onboard hardware.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== ABSTRACT ===================== -->
+    <section class="section" id="abstract">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">01 — Overview</span>
+          <h2>Abstract</h2>
+        </div>
+        <div class="prose reveal">
+          <p>
+            Grasping objects with a flying robot is hard when the workspace is cluttered. Objects sit
+            behind one another, and the drone risks colliding with nearby obstacles as it reaches in.
+            Most existing aerial grasping systems aim for the geometric center of an object, assume the
+            object is already clearly visible, and treat perception, grasp selection, and control as
+            separate problems.
+          </p>
+          <p>
+            <strong>AeroGrab</strong> brings these pieces into a single pipeline. The user gives a natural-language
+            instruction such as <em>“grasp the silver bottle on the white table.”</em> The system locates the
+            target, then flies around it to collect better viewpoints. For each viewpoint, a grasp network
+            proposes several 6-DoF grasp candidates. Every candidate is checked by a collision-aware
+            feasibility module that reasons about the <strong>full body</strong> of the drone and arm — not just the
+            gripper. The best safe grasp is then executed using standard minimum-snap trajectory generation
+            and an adaptive controller.
+          </p>
+          <p>
+            In real cluttered scenes, this combination of active viewing and feasibility-aware selection
+            produces robust, reliable grasps, while staying light enough to run on a small onboard computer.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MOTIVATION ===================== -->
+    <section class="section section--alt" id="motivation">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">02 — Why it matters</span>
+          <h2>The problem</h2>
+        </div>
+
+        <div class="split">
+          <div class="prose reveal">
+            <p>
+              Aerial manipulators can reach places ground robots cannot — high shelves, gaps, and spaces
+              that are otherwise hard to access. But to grasp something useful, a flying robot has to do
+              several things well at once: find the target, choose a stable place to grip it, and reach in
+              without hitting anything.
+            </p>
+            <p>
+              Two common simplifications break down in the real world. First, aiming for the
+              <strong>center of an object</strong> works for compact, uniform shapes, but everyday objects are best
+              grasped at functional regions — a handle, a rim, an edge — not their centroid. Second, many
+              systems assume the target is <strong>clearly visible</strong>. In clutter, objects are partially hidden,
+              so whether a good grasp even exists depends heavily on where the camera is looking.
+            </p>
+            <p>
+              These issues are usually handled in isolation. AeroGrab argues they should be solved together:
+              the robot should move <em>specifically</em> to reveal feasible grasps, and it should judge each grasp
+              by whether the whole platform can safely fly to it.
+            </p>
+          </div>
+
+          <ul class="gaps reveal">
+            <li>
+              <span class="gaps__k mono">Centroid grasping</span>
+              <span class="gaps__v">Misses functional grasp regions on real objects.</span>
+            </li>
+            <li>
+              <span class="gaps__k mono">Static viewpoint</span>
+              <span class="gaps__v">Occlusion hides feasible grasps from a fixed pose.</span>
+            </li>
+            <li>
+              <span class="gaps__k mono">Arm-only checks</span>
+              <span class="gaps__v">Ignore collisions with the drone body during approach.</span>
+            </li>
+            <li>
+              <span class="gaps__k mono">Separate stages</span>
+              <span class="gaps__v">Perception, grasping, and control rarely act as one loop.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CORE IDEA ===================== -->
+    <section class="section" id="idea">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">03 — Core idea</span>
+          <h2>Look in order to grasp, grasp only where it is safe</h2>
+        </div>
+
+        <blockquote class="bigquote reveal">
+          Instead of treating <em>where to look</em>, <em>where to grasp</em>, and <em>is it safe to fly there</em> as
+          separate steps, AeroGrab couples them. The drone changes its viewpoint to expose feasible grasps,
+          and it scores every candidate by whether the <strong>full aerial manipulator</strong> — body, arm, and
+          gripper — can reach it without hitting the surrounding clutter.
+        </blockquote>
+
+        <div class="contrib">
+          <article class="contrib__card reveal">
+            <span class="contrib__n mono">C1</span>
+            <h3>Language-guided grasping in clutter</h3>
+            <p>A unified pipeline turns a plain-language instruction into an executable grasp by joining
+               language grounding, perception, and aerial manipulation.</p>
+          </article>
+          <article class="contrib__card reveal">
+            <span class="contrib__n mono">C2</span>
+            <h3>Active perception for viewpoint-dependent grasps</h3>
+            <p>The robot autonomously repositions around a scene to improve how well it sees the target and
+               to expose feasible grasp approaches.</p>
+          </article>
+          <article class="contrib__card reveal">
+            <span class="contrib__n mono">C3</span>
+            <h3>Collision-aware 6-DoF feasibility</h3>
+            <p>A ranking module scores grasps by full-body approach clearance, reachability, and clutter,
+               selecting a safe grasp while actively checking for collisions.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== METHOD / PIPELINE ===================== -->
+    <section class="section section--alt" id="method">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">04 — How it works</span>
+          <h2>The pipeline, end to end</h2>
+          <p class="section__lead">
+            The input is a single RGB-D stream and one natural-language command. The output is a
+            collision-safe grasp the robot actually flies to and executes. Here is the path from one to
+            the other.
+          </p>
+        </div>
+      </div>
+
+      <!-- ----- SIGNATURE: the flight-path pipeline (draws on scroll) ----- -->
+      <div class="wrap wrap--wide">
+        <div class="flow" id="flow" aria-label="System pipeline stages">
+          <div class="flow__line" aria-hidden="true"><span class="flow__progress" id="flowProgress"></span></div>
+
+          <ol class="flow__stages">
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">01</span>
+              <h4>Language</h4>
+              <p>An LLM splits the command into a <em>scene</em> prompt and a <em>target</em> prompt.</p>
+            </li>
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">02</span>
+              <h4>Search &amp; explore</h4>
+              <p>Yaw-scan to find the scene, then orbit it to reveal the occluded target.</p>
+            </li>
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">03</span>
+              <h4>Grasp synthesis</h4>
+              <p>A hybrid CNN-ViT proposes many 6-DoF grasp candidates on the target.</p>
+            </li>
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">04</span>
+              <h4>Feasibility</h4>
+              <p>Filter by reachability and full-body collisions; score each candidate's safety.</p>
+            </li>
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">05</span>
+              <h4>Decide</h4>
+              <p>If the best score clears a threshold, execute; otherwise keep exploring.</p>
+            </li>
+            <li class="flow__stage">
+              <span class="flow__dot"></span>
+              <span class="flow__num mono">06</span>
+              <h4>Execute &amp; lift</h4>
+              <p>Track a minimum-snap trajectory, close the gripper, and lift clear of clutter.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- ----- Method detail cards ----- -->
+      <div class="wrap">
+        <div class="cards">
+          <article class="card reveal">
+            <span class="card__step mono">Step 01</span>
+            <h3>Language-guided target localization</h3>
+            <p>
+              The command — for example <em>“grasp the green bottle from the steel table”</em> — is decomposed by
+              an LLM into a <strong>scene prompt</strong> (“steel table”) and a <strong>target prompt</strong> (“green bottle”).
+              SAM-3 segments these in real time and keeps the masks consistent across frames, giving a stable
+              visual reference the rest of the pipeline can rely on.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__step mono">Step 02</span>
+            <h3>Active viewpoint exploration</h3>
+            <p>
+              The robot first yaw-scans to find the scene, estimates its 3D centroid, then orbits around it.
+              The orbit radius adapts so the whole scene stays inside the camera's field of view. As the drone
+              moves, SAM-3 keeps updating the masks until the target becomes visible — at which point the task
+              shifts from <em>searching</em> to <em>grasping</em>.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__step mono">Step 03</span>
+            <h3>6-DoF grasp synthesis</h3>
+            <p>
+              A cropped region of interest around the target is fed to a hybrid CNN-ViT network trained on
+              GraspNet-1Billion. It predicts a set of 6-DoF grasps, each with a translation, orientation,
+              gripper width, and confidence score. Because these annotations were made for fixed-base arms,
+              aerial-specific filters follow.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__step mono">Step 04</span>
+            <h3>Aerial feasibility filtering</h3>
+            <p>
+              Two physical constraints reshape the candidate set. <strong>Gravity-aligned approach</strong> discards
+              grasps that would require reaching up from beneath a surface. <strong>Stability-aware scoring</strong>
+              penalizes grasps far from the object's center — which create larger moment arms at lift-off —
+              without removing them, so they remain available when clutter rules out safer options.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__step mono">Step 05</span>
+            <h3>Collision-aware safety scoring</h3>
+            <p>
+              Candidates are transformed to the world frame and checked with inverse kinematics for
+              reachability. For reachable grasps, a full-body approach trajectory is generated and evaluated
+              in a <strong>batched</strong> collision check: a fast KD-tree pass skips empty regions, then the GPU tests
+              whether scene points fall inside the robot's convex hulls along the path. The visual score is
+              then down-weighted by this collision penalty as a soft constraint.
+            </p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__step mono">Step 06</span>
+            <h3>Decision logic &amp; execution</h3>
+            <p>
+              The grasp with the highest safety-weighted score wins. If even the best score is below the
+              feasibility threshold, the robot does not fail — it keeps orbiting the target until a
+              collision-free corridor appears. Once a safe grasp is found, a minimum-snap trajectory and an
+              adaptive controller carry the robot in, the gripper closes, and the object is lifted clear.
+            </p>
+          </article>
+        </div>
+
+        <!-- Soft-constraint note -->
+        <p class="note reveal">
+          <span class="note__tag mono">Why the soft score</span>
+          A hard collision rule would reject many grasps that only graze clutter — often unavoidable in
+          dense scenes. The penalty drives genuinely unsafe grasps to zero while keeping minor, grazing
+          approaches on the table.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== ARCHITECTURE FIGURE ===================== -->
+    <section class="section" id="architecture">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">05 — System flow</span>
+          <h2>Architecture overview</h2>
+          <p class="section__lead">
+            Perception and language run partly offboard; all time-critical planning and control run onboard
+            the aerial platform.
+          </p>
+        </div>
+
+        <figure class="figure reveal">
+          <!-- Export Fig. 2 from the paper as assets/pipeline.png and drop it here -->
+          <img class="figure__img" src="assets/pipeline.png"
+               alt="Unified perception, planning, and control pipeline: language grounding, active perception, 6-DoF grasp generation, feasibility analysis, and collision-safe execution." />
+          <figcaption class="figure__cap">
+            The framework connects language grounding, active perception, 6-DoF grasp generation,
+            platform-aware feasibility analysis, and collision-safe execution.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================== EXPERIMENTS ===================== -->
+    <section class="section section--alt" id="experiments">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">06 — Experiments</span>
+          <h2>What we tested, and how</h2>
+          <p class="section__lead">
+            Each scenario targets a distinct failure mode of aerial manipulation. In every trial the robot
+            receives a language query, searches for the target, selects a feasible grasp, and executes it
+            while keeping track of the target under viewpoint changes and occlusion.
+          </p>
+        </div>
+
+        <!-- Scenario cards -->
+        <div class="scn">
+          <article class="scn__card reveal">
+            <span class="scn__id mono">Scenario 1</span>
+            <h3>Tabletop clutter</h3>
+            <p class="scn__q">“Grasp the grey case with yellow latches on the white table.”</p>
+            <p>Dense tabletop clutter with partially overlapping objects. Tests grasp selection and a
+               collision-feasible approach in near-field clutter.</p>
+          </article>
+          <article class="scn__card reveal">
+            <span class="scn__id mono">Scenario 2</span>
+            <h3>Window / aperture-constrained</h3>
+            <p class="scn__q">“Grasp the silver bottle on the white table inside the room.”</p>
+            <p>The target must be reached through a narrow window, enforcing strict base clearance and only
+               partial visibility of the object.</p>
+          </article>
+          <article class="scn__card reveal">
+            <span class="scn__id mono">Scenario 3</span>
+            <h3>Shelf / reachability &amp; stability</h3>
+            <p class="scn__q">“Grasp the grey-and-white triangular pipe inside the shelf.”</p>
+            <p>A multi-tier shelf with restricted access in depth and height. Tests reachability and
+               stability constraints at the edge of the workspace.</p>
+          </article>
+        </div>
+
+        <!-- Setup: hardware + simulation -->
+        <div class="setup">
+          <div class="setup__col reveal">
+            <h3 class="setup__title">Hardware platform</h3>
+            <figure class="figure figure--inset">
+              <!-- Export Fig. 4 as assets/hardware.png -->
+              <img class="figure__img" src="assets/hardware.png"
+                   alt="Custom 450 mm quadrotor with Orin Nano Super, ZED 2i camera, and a 4-DoF manipulator." />
+            </figure>
+            <ul class="spec">
+              <li><span class="spec__k mono">Frame</span><span>Custom 450 mm quadrotor · 2.5 kg takeoff (no payload)</span></li>
+              <li><span class="spec__k mono">Motors</span><span>FlyCat 5010 750 KV BLDC · 12&Prime; propellers</span></li>
+              <li><span class="spec__k mono">Flight ctrl</span><span>CUAV X7+ running PX4 · ROS 2 Humble (PX4 DDS)</span></li>
+              <li><span class="spec__k mono">Onboard</span><span>NVIDIA Orin Nano Super companion computer</span></li>
+              <li><span class="spec__k mono">Camera</span><span>ZED 2i stereo RGB-D</span></li>
+              <li><span class="spec__k mono">Arm</span><span>4-DoF (4R) serial · Dynamixel XH430-W350</span></li>
+              <li><span class="spec__k mono">Offboard</span><span>RTX 4090 (24 GB) + Ryzen 9 · segmentation &amp; viz only</span></li>
+              <li><span class="spec__k mono">Tracking</span><span>OptiTrack motion-capture for pose ground truth</span></li>
+            </ul>
+          </div>
+
+          <div class="setup__col reveal">
+            <h3 class="setup__title">Simulation</h3>
+            <figure class="figure figure--inset">
+              <!-- Export Fig. 5 as assets/simulation.png -->
+              <img class="figure__img" src="assets/simulation.png"
+                   alt="High-fidelity Gazebo Harmonic simulation of the aerial grasping scenarios." />
+            </figure>
+            <ul class="spec">
+              <li><span class="spec__k mono">Engine</span><span>Gazebo Harmonic · high-fidelity</span></li>
+              <li><span class="spec__k mono">Dynamics</span><span>PX4 Software-In-The-Loop (SITL)</span></li>
+              <li><span class="spec__k mono">Arm</span><span>4-DoF via ros2_control in torque mode</span></li>
+              <li><span class="spec__k mono">Sensor</span><span>OAK-Lite RGB-D model</span></li>
+              <li><span class="spec__k mono">Sim-to-real</span><span>Gaussian depth noise (&sigma; = 0.02 m) + dropout</span></li>
+            </ul>
+
+            <h3 class="setup__title setup__title--gap">Metrics</h3>
+            <ul class="metric-def">
+              <li><span class="metric-def__k mono">GA &darr;</span><span>Grasp Accuracy — distance from predicted to ideal grasp center (cm).</span></li>
+              <li><span class="metric-def__k mono">SGL &darr;</span><span>Search-to-Grasp Latency — end-to-end mission time (s).</span></li>
+              <li><span class="metric-def__k mono">CFGR &uarr;</span><span>Collision-Free Grasp Rate — full grasps completed cleanly (%).</span></li>
+              <li><span class="metric-def__k mono">OSF &darr;</span><span>Object Search Failures — target not found (%).</span></li>
+              <li><span class="metric-def__k mono">CIF &darr;</span><span>Collision-Induced Failures — grasp lost to a collision (%).</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Scenario figure -->
+        <figure class="figure reveal">
+          <!-- Export Fig. 3 (a,b,c) as assets/scenarios.png  (or three separate images) -->
+          <img class="figure__img" src="assets/scenarios.png"
+               alt="Three experiment scenarios: tabletop clutter, window-constrained access, and shelf reachability, each showing scene view, trajectory, and a successful grasp." />
+          <figcaption class="figure__cap">
+            Experiment scenarios. (a) tabletop clutter, (b) window-constrained access, (c) shelf
+            reachability. For each, we show the scene view, the trajectory, and the successful grasp.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================== RESULTS ===================== -->
+    <section class="section" id="results">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">07 — Results</span>
+          <h2>What the numbers show</h2>
+        </div>
+
+        <!-- Headline stats -->
+        <div class="stats">
+          <div class="stat reveal">
+            <span class="stat__num mono">80%</span>
+            <span class="stat__lab">collision-free grasp rate<br />on hardware (tabletop clutter)</span>
+          </div>
+          <div class="stat reveal">
+            <span class="stat__num mono">41 ms</span>
+            <span class="stat__lab">perception-to-plan latency<br />per planning cycle</span>
+          </div>
+          <div class="stat reveal">
+            <span class="stat__num mono">16.8 s</span>
+            <span class="stat__lab">average end-to-end<br />episode time</span>
+          </div>
+        </div>
+
+        <p class="prose prose--narrow reveal">
+          Against a centroid-based baseline and a traditional 6-DoF aerial baseline under identical
+          cluttered setups, AeroGrab holds a much higher collision-free grasp rate as clutter density
+          increases. Centroid methods can post a low grasp-error number by trivially targeting the object
+          center, but that simplification collapses in dense clutter; the 6-DoF baseline, lacking active
+          viewing and tight collision checking, struggles to even find occluded targets.
+        </p>
+
+        <!-- TABLE I — Baselines -->
+        <div class="table-block reveal">
+          <div class="table-block__head">
+            <h3>Baseline comparison — tabletop, hardware (N = 30)</h3>
+            <p class="table-block__hint mono">↓ lower is better &nbsp;·&nbsp; ↑ higher is better</p>
+          </div>
+          <div class="table-scroll">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Method</th><th>Clutter</th>
+                  <th>GA (cm) &darr;</th><th>CFGR &uarr;</th><th>OSF &darr;</th><th>CIF &darr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Bauer (CoRL '25)</td><td>Sparse</td><td>1.2 &plusmn; 0.4</td><td>43.33%</td><td class="muted">&ndash;<sup>a</sup></td><td>56.67%</td></tr>
+                <tr><td>Ramon-Soria (Eng '20)</td><td>Sparse</td><td>4.6 &plusmn; 0.5</td><td>56.67%</td><td>20.00%</td><td>23.33%</td></tr>
+                <tr class="is-ours"><td>AeroGrab (Ours)</td><td>Sparse</td><td>2.2 &plusmn; 0.6</td><td>90.00%</td><td>3.33%</td><td>6.67%</td></tr>
+                <tr><td>Bauer (CoRL '25)</td><td>Dense</td><td>2.4 &plusmn; 0.5</td><td>10.00%</td><td class="muted">&ndash;<sup>a</sup></td><td>90.00%</td></tr>
+                <tr><td>Ramon-Soria (Eng '20)</td><td>Dense</td><td>5.5 &plusmn; 0.4</td><td>23.33%</td><td>43.33%</td><td>33.33%</td></tr>
+                <tr class="is-ours"><td>AeroGrab (Ours)</td><td>Dense</td><td>3.1 &plusmn; 0.6</td><td>80.00%</td><td>10.00%</td><td>10.00%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-block__foot mono"><sup>a</sup> OSF not reported for Bauer; target assumed already visible.</p>
+        </div>
+
+        <!-- TABLE II — Per scenario -->
+        <div class="table-block reveal">
+          <div class="table-block__head">
+            <h3>AeroGrab across all three scenarios</h3>
+          </div>
+          <div class="table-scroll">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>GA (cm) &darr;</th><th>SGL (s) &darr;</th><th>CFGR &uarr;</th><th>OSF &darr;</th><th>CIF &darr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="grp"><td colspan="6" class="mono">Hardware runs (N = 30)</td></tr>
+                <tr><td>1 · Tabletop</td><td>3.1 &plusmn; 0.6</td><td>16.8</td><td>80.0%</td><td>10.0%</td><td>10.0%</td></tr>
+                <tr><td>2 · Window</td><td>3.8 &plusmn; 0.6</td><td>10.5</td><td>73.33%</td><td>10.0%</td><td>16.67%</td></tr>
+                <tr><td>3 · Shelf</td><td>4.9 &plusmn; 0.4</td><td>15.0</td><td>70.0%</td><td>16.67%</td><td>13.33%</td></tr>
+                <tr class="grp"><td colspan="6" class="mono">Simulation runs (N = 50)</td></tr>
+                <tr><td>1 · Tabletop</td><td>1.2 &plusmn; 0.2</td><td>6.8</td><td>90.0%</td><td>4.0%</td><td>6.0%</td></tr>
+                <tr><td>2 · Window</td><td>2.1 &plusmn; 0.4</td><td>4.7</td><td>86.0%</td><td>6.0%</td><td>8.0%</td></tr>
+                <tr><td>3 · Shelf</td><td>1.9 &plusmn; 0.3</td><td>5.0</td><td>80.0%</td><td>8.0%</td><td>12.0%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TABLE III — Ablation -->
+        <div class="table-block reveal">
+          <div class="table-block__head">
+            <h3>Architecture ablation — hardware (N = 30)</h3>
+            <p class="table-block__hint mono">Latency = perception-to-plan compute per cycle (excludes motion)</p>
+          </div>
+          <div class="table-scroll">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Variant</th>
+                  <th>Latency (ms) &darr;</th><th>GA (cm) &darr;</th><th>CFGR &uarr;</th><th>OSF &darr;</th><th>CIF &darr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>No obstacle awareness</td><td>24 &plusmn; 6</td><td>5.2 &plusmn; 0.3</td><td>33.33%</td><td>13.33%</td><td>53.34%</td></tr>
+                <tr><td>No real-time update (open-loop)</td><td>41 &plusmn; 10</td><td>4.5 &plusmn; 1.1</td><td>46.66%</td><td>33.34%</td><td>20.00%</td></tr>
+                <tr><td>CPU-only collision</td><td>145 &plusmn; 12</td><td>3.8 &plusmn; 0.5</td><td>53.34%</td><td>23.33%</td><td>23.33%</td></tr>
+                <tr class="is-ours"><td>Full pipeline (Ours)</td><td>41 &plusmn; 12</td><td>3.1 &plusmn; 0.6</td><td>80.00%</td><td>10.00%</td><td>10.00%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="prose prose--narrow reveal">
+          The ablation makes the trade-offs concrete. Dropping obstacle awareness is fastest but collapses
+          reliability — many high-confidence grasps are simply not safe once full-body clearance is enforced.
+          Running open-loop lets state drift go uncorrected during the approach. A CPU-only collision check
+          is accurate but too slow to keep up with changing geometry. Only with all three — collision-aware
+          feasibility, fast updates, and closed-loop perception — does the full pipeline reach the best
+          overall result.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== VIDEO / DEMO ===================== -->
+    <section class="section section--alt" id="video">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">08 — Demo</span>
+          <h2>Video</h2>
+          <p class="section__lead">Real-world grasps across tabletop, window, and shelf scenarios.</p>
+        </div>
+
+        <div class="video reveal">
+          <!--
+            VIDEO EMBED — choose ONE:
+            A) Local file: place assets/demo.mp4 and use the <video> below.
+            B) YouTube: replace the <video> with an <iframe> (template commented underneath).
+          -->
+          <video class="video__frame" controls playsinline poster="assets/teaser.png">
+            <source src="assets/demo.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          <!--
+          <iframe class="video__frame"
+                  src="https://www.youtube.com/embed/VIDEO_ID"
+                  title="AeroGrab demo video"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
+          -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== BIBTEX ===================== -->
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">09 — Citation</span>
+          <h2>BibTeX</h2>
+          <p class="section__lead">If you find this work useful, please consider citing it.</p>
+        </div>
+
+        <div class="bib reveal">
+          <button class="bib__copy" id="bibCopy" type="button">Copy</button>
+          <!-- TODO: fill in booktitle / year / pages once the camera-ready details are final -->
+          <pre id="bibText">@inproceedings{singh2025aerograb,
+  title     = {AeroGrab: A Unified Framework for Aerial Grasping in Cluttered Environments},
+  author    = {Singh, Shivansh Pratap and Nair, Naveen and Ujjwal, Samaksh and
+               Mishra, Sarthak and Patil, Soham and Yadav, Rishabh Dev and Roy, Spandan},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2025}
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ACK / CONTACT ===================== -->
+    <section class="section section--alt" id="contact">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <span class="eyebrow mono">10 — Acknowledgements &amp; contact</span>
+          <h2>Acknowledgements</h2>
+        </div>
+
+        <div class="split">
+          <div class="prose reveal">
+            <p>
+              This work is partly supported by the <strong>Edge-AI-Di.Vision</strong> project from Qualcomm
+              Technologies and the <strong>UASAT</strong> project sponsored by MeitY, India. The authors acknowledge
+              the use of large language models (Gemini and ChatGPT) solely for refining the linguistic flow
+              of the manuscript.
+            </p>
+          </div>
+
+          <div class="contact reveal">
+            <h3 class="contact__title">Contact</h3>
+            <ul class="contact__list mono">
+              <li><a href="mailto:shivansh.singh@research.iiit.ac.in">shivansh.singh@research.iiit.ac.in</a></li>
+              <li><a href="mailto:naveennair2003@gmail.com">naveennair2003@gmail.com</a></li>
+              <li><a href="mailto:spandan.roy@iiit.ac.in">spandan.roy@iiit.ac.in</a></li>
+              <li><a href="mailto:rishabh.yadav@postgrad.manchester.ac.uk">rishabh.yadav@postgrad.manchester.ac.uk</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <span>AeroGrab · Robotics Research Center, IIIT Hyderabad</span>
+      <span class="mono">© <span id="year"></span> · Page template free to reuse</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
